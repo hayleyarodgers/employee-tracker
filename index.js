@@ -1,7 +1,33 @@
+// Import dependencies
+const express = require('express');
+const mysql = require('mysql2');
 const inquirer = require('inquirer');
+const consoleTable = require('console.table');
+// const api = require('./routes/index');
+
 const Department = require('./lib/Department');
 const Role = require('./lib/Role');
 const Employee = require('./lib/Employee');
+
+const PORT = process.env.PORT || 3001;
+const app = express();
+
+// Express middleware
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+// app.use('/api', api);
+
+// Connect to database
+const db = mysql.createConnection(
+    {
+        host: 'localhost',
+        user: 'root',
+        password: 'poiuytrewq1!',
+        database: 'myBusiness_db'
+    },
+
+    console.log(`Connected to the myBusiness_db database.`)
+);
 
 // Questions user is asked in CLI
 const welcome = () => {
@@ -12,8 +38,89 @@ Welcome to the employee tracker! 👋`);
 
 const respondToUserInputs = () => {
     
+    // User says what they want to do
+    const decisionInput = () => {
+        inquirer
+        .prompt([
+            {
+                type: 'list',
+                name: 'decision',
+                message: 'What would you like to do?',
+                choices: ['View all departments',
+                          'View all roles',
+                          'View all employees',
+                          'Add a department',
+                          'Add a role',
+                          'Add an employee',
+                          'Update an employee\'s role',
+                          'Quit'],
+            }
+        ])
+        .then((answers) => {        
+            if (answers.decision === 'View all departments') {
+                viewAllDepartments();
+            } else if (answers.decision === 'View all roles') {
+                viewAllRoles();
+            } else if (answers.decision === 'View all employees') {
+                viewAllEmployees();
+            } else if (answers.decision === 'Add a department') {
+                addDepartment();
+            } else if (answers.decision === 'Add a role') {
+                addRole();
+            } else if (answers.decision === 'Add an employee') {
+                addEmployee();
+            } else if (answers.decision === 'Update an employee\'s role') {
+                updateEmployeeRole();
+            } else {
+                console.log('Thanks for using the employee tracker, bye! 👋');
+                return
+            }
+        });
+    }
+
     decisionInput();
+
+    /* VIEW DATABASE */
+    // View departments
+    const viewAllDepartments = () => {
+        db.query(`SELECT id, name FROM departments`, (err, result) => {
+            if (err) {
+                res.status(500).json({ error: err.message });
+                return;
+            }
+
+            console.table(result);
+        });
+
+        decisionInput();
+    }
     
+    // View roles
+    const viewAllRoles = () => {
+        db.query(`SELECT id, title, department, salary FROM roles`, (err, result) => {
+            if (err) {
+                res.status(500).json({ error: err.message });
+                return;
+            }
+
+            consoleTable(result);
+        });
+    }
+
+    // View employees
+    const viewAllEmployees = () => {
+        db.query(`SELECT employees.id AS id, employees.first_name AS first_name, employees.last_name AS last_name, roles.title AS title, roles.department_id AS department, roles.salary AS salary, employee.manager_id = manager FROM employees JOIN roles ON employees.role_id = roles.id;`, (err, result) => {
+            if (err) {
+                res.status(500).json({ error: err.message });
+                return;
+            }
+
+            consoleTable(result);
+        });
+    }
+    
+    /* ADD TO DATABASE */
+    // Add a department
     const addDepartment = () => {
         inquirer
         .prompt([
@@ -33,6 +140,7 @@ const respondToUserInputs = () => {
         });
     }
     
+    // Add a role
     const addRole = () => {
         inquirer
         .prompt([
@@ -66,6 +174,7 @@ const respondToUserInputs = () => {
         });
     }
 
+    // Add an employee
     const addEmployee = () => {
         inquirer
         .prompt([
@@ -107,6 +216,8 @@ const respondToUserInputs = () => {
         });
     }
 
+    /* UPDATE DATABASE */
+    // Change an employee's role
     const updateEmployeeRole = () => {
         inquirer
         .prompt([
@@ -131,37 +242,8 @@ const respondToUserInputs = () => {
         });
     }
 
-    const decisionInput = () => {
-        inquirer
-        .prompt([
-            {
-                type: 'list',
-                name: 'decision',
-                message: 'What would you like to do?',
-                choices: ['View all departments','View all roles','View all employees','Add a department','Add a role','Add an employee','Update an employee\'s role','Quit'],
-            }
-        ])
-        .then((answers) => {        
-            if (answers.decision === 'View all departments') {
-                viewAllDepartments();
-            } else if (answers.decision === 'View all roles') {
-                viewAllRoles();
-            } else if (answers.decision === 'View all employees') {
-                viewAllEmployees();
-            } else if (answers.decision === 'Add a department') {
-                addDepartment();
-            } else if (answers.decision === 'Add a role') {
-                addRole();
-            } else if (answers.decision === 'Add an employee') {
-                addEmployee();
-            } else if (answers.decision === 'Update an employee\'s role') {
-                updateEmployeeRole();
-            } else {
-                console.log('Thanks for using the employee tracker, bye! 👋');
-                return
-            }
-        });
-    }
+    
+    
 }
 
 // Initialise app
@@ -171,3 +253,13 @@ const init = () => {
 }
 
 init();
+
+// Default response for any other request (not found)
+app.use((req, res) => {
+    res.status(404).end();
+});
+
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT} 🚀`);
+});
