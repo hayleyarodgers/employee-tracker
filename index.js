@@ -1,21 +1,7 @@
 // Import dependencies
-const express = require('express');
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
 const consoleTable = require('console.table');
-// const api = require('./routes/index');
-
-const Department = require('./lib/Department');
-const Role = require('./lib/Role');
-const Employee = require('./lib/Employee');
-
-const PORT = process.env.PORT || 3001;
-const app = express();
-
-// Express middleware
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
-// app.use('/api', api);
 
 // Connect to database
 const db = mysql.createConnection(
@@ -135,10 +121,6 @@ const respondToUserInputs = () => {
             }
         ])
         .then((answers) => {
-            const createDepartment = new Department(answers.name);
-            const department = {
-                name: createDepartment.getName()
-            };
             // need to add new department to database
             decisionInput();
         });
@@ -167,12 +149,6 @@ const respondToUserInputs = () => {
             }
         ])
         .then((answers) => {
-            const createRole = new Role(answers.title, parseInt(answers.salary), answers.department);
-            const role = {
-                title: createRole.getTitle(),
-                salary: createRole.getSalary(),
-                department: createRole.getDepartment()
-            };
             // need to add new role to database
             decisionInput();
         });
@@ -208,13 +184,6 @@ const respondToUserInputs = () => {
             }
         ])
         .then((answers) => {
-            const createEmployee = new Employee(answers.firstName, answers.lastName, answers.role, answers.manager);
-            const employee = {
-                firstName: createEmployee.getFirstName(),
-                lastName: createEmployee.getLastName(),
-                role: createEmployee.getRole(),
-                manager: createEmployee.getManager()
-            };
             // need to add new employee to database
             decisionInput();
         });
@@ -257,13 +226,3 @@ const init = () => {
 }
 
 init();
-
-// Default response for any other request (not found)
-app.use((req, res) => {
-    res.status(404).end();
-});
-
-
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT} 🚀`);
-});
