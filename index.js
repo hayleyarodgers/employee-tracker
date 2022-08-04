@@ -103,8 +103,10 @@ const respondToUserInputs = () => {
                 return;
             }
 
-            consoleTable(result);
+            console.table(result);
         });
+
+        decisionInput();
     }
 
     // View employees
@@ -115,8 +117,10 @@ const respondToUserInputs = () => {
                 return;
             }
 
-            consoleTable(result);
+            console.table(result);
         });
+
+        decisionInput();
     }
     
     /* ADD TO DATABASE */
