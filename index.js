@@ -54,7 +54,7 @@ const respondToUserInputs = () => {
 
     // View all employees
     const viewAllEmployees = () => {
-        const sql = `SELECT e.id AS id, e.first_name AS first_name, e.last_name AS last_name, roles.title AS title, departments.name AS department, roles.salary AS salary, CONCAT(m.first_name, " ", m.last_name) AS manager FROM employees e JOIN roles ON e.role_id = roles.id JOIN departments ON roles.department_id = departments.id JOIN employees m ON e.manager_id = m.id`;
+        const sql = `SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department, r.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employees e LEFT JOIN roles r ON e.role_id = r.id LEFT JOIN departments d ON d.id = r.department_id LEFT JOIN employees m ON m.id = e.manager_id`;
 
         db.query(sql, (err, result) => {
             if (err) {
@@ -92,7 +92,17 @@ const respondToUserInputs = () => {
     }
     
     // Add a role
-    const addRole = () => {
+    const addRole = () => {        
+        db.query(`SELECT name FROM departments;`, (err, result) => {
+            if (err) {
+                console.log(err);
+            }
+
+            console.log(result);
+            console.log({ result });
+            // const departments = [result];
+        })
+        
         inquirer
         .prompt([
             {
