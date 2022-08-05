@@ -40,7 +40,7 @@ const respondToUserInputs = () => {
     
     // View all roles
     const viewAllRoles = () => {
-        const sql = `SELECT id, title, department_id, salary FROM roles`;
+        const sql = `SELECT roles.id as id, roles.title as title, departments.name as department, roles.salary as salary FROM roles JOIN departments ON roles.department_id = departments.id;`;
         
         db.query(sql, (err, result) => {
             if (err) {
@@ -54,7 +54,7 @@ const respondToUserInputs = () => {
 
     // View all employees
     const viewAllEmployees = () => {
-        const sql = `SELECT employees.id AS id, employees.first_name AS first_name, employees.last_name AS last_name, roles.title AS title, departments.name AS department, roles.salary AS salary, employees.manager_id AS manager FROM employees JOIN roles ON employees.role_id = roles.id;`;
+        const sql = `SELECT employees.id AS id, employees.first_name AS first_name, employees.last_name AS last_name, roles.title AS title, departments.name AS department, roles.salary AS salary, employees.manager_id AS manager FROM employees JOIN roles ON employees.role_id = roles.id JOIN departments ON roles.department_id = departments.id;`;
         
         db.query(sql, (err, result) => {
             if (err) {
