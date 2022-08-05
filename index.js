@@ -31,7 +31,7 @@ const respondToUserInputs = () => {
         db.query(sql, (err, result) => {
             if (err) {
                 console.log(err);
-            }
+            };
 
             console.table(result);
             decisionInput();
@@ -45,7 +45,7 @@ const respondToUserInputs = () => {
         db.query(sql, (err, result) => {
             if (err) {
                 console.log(err);
-            }
+            };
 
             console.table(result);
             decisionInput();
@@ -59,7 +59,7 @@ const respondToUserInputs = () => {
         db.query(sql, (err, result) => {
             if (err) {
                 console.log(err);
-            }
+            };
 
             console.table(result);
             decisionInput();
@@ -84,7 +84,7 @@ const respondToUserInputs = () => {
             db.query(sql, params, (err, result) => {
                 if (err) {
                     console.log(err);
-                }
+                };
     
                 decisionInput();
             });
@@ -96,45 +96,55 @@ const respondToUserInputs = () => {
         db.query(`SELECT name FROM departments;`, (err, result) => {
             if (err) {
                 console.log(err);
-            }
+            };
 
-            console.log(result);
-            console.log({ result });
-            // const departments = [result];
-        })
-        
-        inquirer
-        .prompt([
-            {
-                type: 'input',
-                name: 'title',
-                message: 'What is the title of the role?'
-            },
-            {
-                type: 'input',
-                name: 'salary',
-                message: 'What is the salary of the role?'
-            },
-            {
-                type: 'list',
-                name: 'department',
-                message: 'Which department does the role belong to?',
-                choices: []
-                // Need to get departments from database to make the choices
-            }
-        ])
-        .then((answers) => {
-            const sql = `INSERT INTO roles (title, salary, department_id) VALUES (?)`;
-            // const params = answers.title, answers.salary, ;
-            
-            db.query(sql, params, (err, result) => {
-                if (err) {
-                    console.log(err);
+            const departmentChoices = [];
+            for (let i = 0; i < result.length; i++) {
+                departmentChoices.push(result[i].name);
+            };
+
+            inquirer
+            .prompt([
+                {
+                    type: 'input',
+                    name: 'title',
+                    message: 'What is the title of the role?'
+                },
+                {
+                    type: 'input',
+                    name: 'salary',
+                    message: 'What is the salary of the role?'
+                },
+                {
+                    type: 'list',
+                    name: 'department',
+                    message: 'Which department does the role belong to?',
+                    choices: departmentChoices
                 }
-    
-                decisionInput();
+            ])
+            .then((answers) => {
+                let chosenSalary = parseInt(answers.salary);
+                
+                let chosenDepartment = answers.department;
+                let chosenDepartmentID;
+                for (let i = 0; i < departmentChoices.length; i++) {
+                    if (chosenDepartment = departmentChoices[i]) {
+                        chosenDepartmentID = i + 1;
+                    };
+                };
+
+                const sql = `INSERT INTO roles (title, salary, department_id) VALUES (?)`;
+                const params = [answers.title, chosenSalary, chosenDepartmentID];
+                
+                db.query(sql, [params], (err, result) => {
+                    if (err) {
+                        console.log(err);
+                    }
+        
+                    decisionInput();
+                });
             });
-        });
+        })
     }
 
     // Add an employee
@@ -163,7 +173,7 @@ const respondToUserInputs = () => {
                 name: 'manager',
                 message: 'Who is the employee\'s manager?',
                 choices: []
-                // Need to get managers from database to make the choices
+                // Need to get employees from database to make the choices
             }
         ])
         .then((answers) => {
@@ -241,6 +251,16 @@ const respondToUserInputs = () => {
     
         decisionInput();
 }
+
+// Getting list of current departments
+
+
+// Getting list of current roles
+
+
+// Getting list of current employees
+
+
 
 // Initialise app
 const init = () => {
