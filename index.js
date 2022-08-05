@@ -9,10 +9,10 @@ const db = mysql.createConnection(
         host: 'localhost',
         user: 'root',
         password: 'poiuytrewq1!',
-        database: 'myBusiness_db'
+        database: 'business_db'
     },
 
-    console.log(`Connected to the myBusiness_db database.`)
+    console.log(`Connected to the business_db database.`)
 );
 
 // Questions user is asked in CLI
@@ -69,44 +69,47 @@ const respondToUserInputs = () => {
     /* VIEW DATABASE */
     // View departments
     const viewAllDepartments = () => {
-        db.query(`SELECT id, name FROM departments`, (err, result) => {
+        sql = `SELECT id, name FROM departments`;
+        
+        db.query(sql, (err, result) => {
             if (err) {
                 res.status(500).json({ error: err.message });
                 return;
             }
 
             console.table(result);
+            decisionInput();
         });
-
-        decisionInput();
     }
     
     // View roles
     const viewAllRoles = () => {
-        db.query(`SELECT id, title, department, salary FROM roles`, (err, result) => {
+        const sql = `SELECT id, title, department, salary FROM roles`;
+        
+        db.query(sql, (err, result) => {
             if (err) {
                 res.status(500).json({ error: err.message });
                 return;
             }
 
             console.table(result);
+            decisionInput();
         });
-
-        decisionInput();
     }
 
     // View employees
     const viewAllEmployees = () => {
-        db.query(`SELECT employees.id AS id, employees.first_name AS first_name, employees.last_name AS last_name, roles.title AS title, roles.department_id AS department, roles.salary AS salary, employee.manager_id = manager FROM employees JOIN roles ON employees.role_id = roles.id;`, (err, result) => {
+        const sql = `SELECT employees.id AS id, employees.first_name AS first_name, employees.last_name AS last_name, roles.title AS title, roles.department_id AS department, roles.salary AS salary, employee.manager_id = manager FROM employees JOIN roles ON employees.role_id = roles.id;`;
+        
+        db.query(sql, (err, result) => {
             if (err) {
                 res.status(500).json({ error: err.message });
                 return;
             }
 
             console.table(result);
+            decisionInput();
         });
-
-        decisionInput();
     }
     
     /* ADD TO DATABASE */
@@ -121,8 +124,17 @@ const respondToUserInputs = () => {
             }
         ])
         .then((answers) => {
-            // need to add new department to database
-            decisionInput();
+            const sql = `INSERT INTO departments (name) VALUES (?)`;
+            const params = answers.name;
+            
+            db.query(sql, params, (err, result) => {
+                if (err) {
+                    res.status(500).json({ error: err.message });
+                    return;
+                }
+    
+                decisionInput();
+            });
         });
     }
     
@@ -149,8 +161,17 @@ const respondToUserInputs = () => {
             }
         ])
         .then((answers) => {
-            // need to add new role to database
-            decisionInput();
+            const sql = `INSERT INTO roles (title, salary, department_id) VALUES (?)`;
+            // const params = answers.title, answers.salary, ;
+            
+            db.query(sql, params, (err, result) => {
+                if (err) {
+                    res.status(500).json({ error: err.message });
+                    return;
+                }
+    
+                decisionInput();
+            });
         });
     }
 
