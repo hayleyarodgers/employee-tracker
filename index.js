@@ -23,58 +23,14 @@ Welcome to the employee tracker! 👋`);
 }
 
 const respondToUserInputs = () => {
-    
-    // User says what they want to do
-    const decisionInput = () => {
-        inquirer
-        .prompt([
-            {
-                type: 'list',
-                name: 'decision',
-                message: 'What would you like to do?',
-                choices: ['View all departments',
-                          'View all roles',
-                          'View all employees',
-                          'Add a department',
-                          'Add a role',
-                          'Add an employee',
-                          'Update an employee\'s role',
-                          'Quit'],
-            }
-        ])
-        .then((answers) => {        
-            if (answers.decision === 'View all departments') {
-                viewAllDepartments();
-            } else if (answers.decision === 'View all roles') {
-                viewAllRoles();
-            } else if (answers.decision === 'View all employees') {
-                viewAllEmployees();
-            } else if (answers.decision === 'Add a department') {
-                addDepartment();
-            } else if (answers.decision === 'Add a role') {
-                addRole();
-            } else if (answers.decision === 'Add an employee') {
-                addEmployee();
-            } else if (answers.decision === 'Update an employee\'s role') {
-                updateEmployeeRole();
-            } else {
-                console.log('Thanks for using the employee tracker, bye! 👋');
-                return
-            }
-        });
-    }
-
-    decisionInput();
-
     /* VIEW DATABASE */
-    // View departments
+    // View all departments
     const viewAllDepartments = () => {
         sql = `SELECT id, name FROM departments`;
         
         db.query(sql, (err, result) => {
             if (err) {
-                res.status(500).json({ error: err.message });
-                return;
+                console.log(err);
             }
 
             console.table(result);
@@ -82,14 +38,13 @@ const respondToUserInputs = () => {
         });
     }
     
-    // View roles
+    // View all roles
     const viewAllRoles = () => {
-        const sql = `SELECT id, title, department, salary FROM roles`;
+        const sql = `SELECT id, title, department_id, salary FROM roles`;
         
         db.query(sql, (err, result) => {
             if (err) {
-                res.status(500).json({ error: err.message });
-                return;
+                console.log(err);
             }
 
             console.table(result);
@@ -97,14 +52,13 @@ const respondToUserInputs = () => {
         });
     }
 
-    // View employees
+    // View all employees
     const viewAllEmployees = () => {
-        const sql = `SELECT employees.id AS id, employees.first_name AS first_name, employees.last_name AS last_name, roles.title AS title, roles.department_id AS department, roles.salary AS salary, employee.manager_id = manager FROM employees JOIN roles ON employees.role_id = roles.id;`;
+        const sql = `SELECT employees.id AS id, employees.first_name AS first_name, employees.last_name AS last_name, roles.title AS title, departments.name AS department, roles.salary AS salary, employees.manager_id AS manager FROM employees JOIN roles ON employees.role_id = roles.id;`;
         
         db.query(sql, (err, result) => {
             if (err) {
-                res.status(500).json({ error: err.message });
-                return;
+                console.log(err);
             }
 
             console.table(result);
@@ -129,8 +83,7 @@ const respondToUserInputs = () => {
             
             db.query(sql, params, (err, result) => {
                 if (err) {
-                    res.status(500).json({ error: err.message });
-                    return;
+                    console.log(err);
                 }
     
                 decisionInput();
@@ -166,8 +119,7 @@ const respondToUserInputs = () => {
             
             db.query(sql, params, (err, result) => {
                 if (err) {
-                    res.status(500).json({ error: err.message });
-                    return;
+                    console.log(err);
                 }
     
                 decisionInput();
@@ -236,8 +188,48 @@ const respondToUserInputs = () => {
         });
     }
 
+        /* DECISION */
+        // User says what they want to do
+        const decisionInput = () => {
+            inquirer
+            .prompt([
+                {
+                    type: 'list',
+                    name: 'decision',
+                    message: 'What would you like to do?',
+                    choices: ['View all departments',
+                              'View all roles',
+                              'View all employees',
+                              'Add a department',
+                              'Add a role',
+                              'Add an employee',
+                              'Update an employee\'s role',
+                              'Quit'],
+                }
+            ])
+            .then((answers) => {        
+                if (answers.decision === 'View all departments') {
+                    viewAllDepartments();
+                } else if (answers.decision === 'View all roles') {
+                    viewAllRoles();
+                } else if (answers.decision === 'View all employees') {
+                    viewAllEmployees();
+                } else if (answers.decision === 'Add a department') {
+                    addDepartment();
+                } else if (answers.decision === 'Add a role') {
+                    addRole();
+                } else if (answers.decision === 'Add an employee') {
+                    addEmployee();
+                } else if (answers.decision === 'Update an employee\'s role') {
+                    updateEmployeeRole();
+                } else {
+                    console.log('Thanks for using the employee tracker, bye! 👋');
+                    return
+                }
+            });
+        }
     
-    
+        decisionInput();
 }
 
 // Initialise app
