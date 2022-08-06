@@ -93,7 +93,7 @@ const respondToUserInputs = () => {
     
     // Add a role
     const addRole = async () => {        
-        const departmentChoices = await getListofCurrentDepartments();
+        const departmentChoices = await getListOfCurrentDepartments();
 
         inquirer
         .prompt([
@@ -139,7 +139,10 @@ const respondToUserInputs = () => {
     }
 
     // Add an employee
-    const addEmployee = () => {
+    const addEmployee = async () => {
+        const roleChoices = await getListOfCurrentRoles();
+        const managerChoices = await getListOfCurrentEmployees();
+        
         inquirer
         .prompt([
             {
@@ -156,15 +159,13 @@ const respondToUserInputs = () => {
                 type: 'list',
                 name: 'role',
                 message: 'What is the employee\'s role?',
-                choices: []
-                // Need to get roles from database to make the choices
+                choices: roleChoices
             },
             {
                 type: 'list',
                 name: 'manager',
                 message: 'Who is the employee\'s manager?',
-                choices: []
-                // Need to get employees from database to make the choices
+                choices: managerChoices
             }
         ])
         .then((answers) => {
@@ -175,22 +176,23 @@ const respondToUserInputs = () => {
 
     /* UPDATE DATABASE */
     // Change an employee's role
-    const updateEmployeeRole = () => {
+    const updateEmployeeRole = async () => {
+        const employeeChoices = await getListOfCurrentEmployees();
+        const roleChoices = await getListOfCurrentRoles();
+
         inquirer
         .prompt([
             {
                 type: 'list',
                 name: 'employee',
                 message: 'Which employee\'s role do you want to update?',
-                choices: []
-                // Need to get employees from database to make the choices
+                choices: employeeChoices
             },
             {
                 type: 'list',
                 name: 'newRole',
                 message: 'Which role do you want to assign the selected employee?',
-                choices: []
-                // Need to get roles from database to make the choices
+                choices: roleChoices
             }
         ])
         .then((answers) => {
@@ -244,24 +246,47 @@ const respondToUserInputs = () => {
 }
 
 // Getting list of current departments
-const getListofCurrentDepartments = async () => {  
+const getListOfCurrentDepartments = async () => {  
     const data = await db.promise().query(`SELECT name FROM departments;`);
-    const departmentObject = data[0];
+    const departmentsObject = data[0];
 
     const departmentChoices = [];
 
-    for (let i = 0; i < departmentObject.length; i++) {
-        departmentChoices.push(departmentObject[i].name);
+    for (let i = 0; i < departmentsObject.length; i++) {
+        departmentChoices.push(departmentsObject[i].name);
     };
 
     return departmentChoices;
 };
 
 // Getting list of current roles
+const getListOfCurrentRoles = async () => {
+    const data = await db.promise().query(`SELECT title FROM roles;`);
+    const rolesObject = data[0];
+
+    const roleChoices = [];
+
+    for (let i = 0; i < rolesObject.length; i++) {
+        roleChoices.push(rolesObject[i].title);
+    };
+
+    return roleChoices;
+}
+
 
 // Getting list of current employees
+const getListOfCurrentEmployees = async () => {
+    const data = await db.promise().query(`SELECT CONCAT(first_name, ' ', last_name) AS full_name FROM employees;`);
+    const employeesObject = data[0];
 
+    const employeeChoices = [];
 
+    for (let i = 0; i < employeesObject.length; i++) {
+        employeeChoices.push(employeesObject[i].full_name);
+    };
+
+    return employeeChoices;
+}
 
 // Initialise app
 const init = () => {
