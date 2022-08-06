@@ -169,8 +169,33 @@ const respondToUserInputs = () => {
             }
         ])
         .then((answers) => {
-            // need to add new employee to database
-            decisionInput();
+            
+            const chosenRole = answers.role;
+            let chosenRoleID;
+            for (let i = 0; i < roleChoices.length; i++) {
+                if (chosenRole == roleChoices[i]) {
+                    chosenRoleID = i + 1;
+                };
+            };
+
+            const chosenManager = answers.manager;
+            let chosenManagerID;
+            for (let i = 0; i < managerChoices.length; i++) {
+                if (chosenManager == managerChoices[i]) {
+                    chosenManagerID = i + 1;
+                };
+            };
+
+            const sql = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?)`;
+            const params = [answers.firstName, answers.lastName, chosenRoleID, chosenManagerID];
+            
+            db.query(sql, [params], (err, result) => {
+                if (err) {
+                    console.log(err);
+                }
+    
+                decisionInput();
+            });
         });
     }
 
