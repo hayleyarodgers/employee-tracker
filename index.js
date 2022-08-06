@@ -215,14 +215,31 @@ const respondToUserInputs = () => {
             },
             {
                 type: 'list',
-                name: 'newRole',
+                name: 'role',
                 message: 'Which role do you want to assign the selected employee?',
                 choices: roleChoices
             }
         ])
         .then((answers) => {
-            // need to change employee's role to database
-            decisionInput();
+            
+            const chosenRole = answers.role;
+            let chosenRoleID;
+            for (let i = 0; i < roleChoices.length; i++) {
+                if (chosenRole == roleChoices[i]) {
+                    chosenRoleID = i + 1;
+                };
+            };
+
+            const sql = `UPDATE employees SET role_id = ? WHERE CONCAT(first_name, ' ', last_name) = ?`;
+            const params = [chosenRoleID, answers.employee];
+            
+            db.query(sql, params, (err, result) => {
+                if (err) {
+                    console.log(err);
+                }
+    
+                decisionInput();
+            });
         });
     }
 
