@@ -329,7 +329,40 @@ const respondToUserInputs = () => {
     }
 
     // Delete an employee
+    const deleteEmployee = async () => {        
+        const employeeChoices = await getListOfCurrentEmployees();
 
+        inquirer
+        .prompt([
+            {
+                type: 'list',
+                name: 'employee',
+                message: 'What is the name of the employee?',
+                choices: employeeChoices
+            }
+        ])
+        .then((answers) => {
+            
+            const chosenEmployee = answers.employee;
+            let chosenEmployeeID;
+            for (let i = 0; i < employeeChoices.length; i++) {
+                if (chosenEmployee == employeeChoices[i]) {
+                    chosenEmployeeID = i + 1;
+                };
+            };
+            
+            const sql = `DELETE FROM employees WHERE employees.id = ?`;
+            const params = chosenEmployeeID;
+            
+            db.query(sql, params, (err, result) => {
+                if (err) {
+                    console.log(err);
+                }
+    
+                decisionInput();
+            });
+        });
+    }
 
     /* UPDATE DATABASE */
     // Change an employee's role
