@@ -302,6 +302,31 @@ const respondToUserInputs = () => {
     }
 
     // Delete a role
+    const deleteRole = async () => {        
+        const roleChoices = await getListOfCurrentRoles();
+
+        inquirer
+        .prompt([
+            {
+                type: 'list',
+                name: 'role',
+                message: 'What is the name of the role?',
+                choices: roleChoices
+            }
+        ])
+        .then((answers) => {
+            const sql = `DELETE FROM roles WHERE roles.title = ?`;
+            const params = answers.role;
+            
+            db.query(sql, params, (err, result) => {
+                if (err) {
+                    console.log(err);
+                }
+    
+                decisionInput();
+            });
+        });
+    }
 
     // Delete an employee
 
