@@ -66,6 +66,46 @@ const respondToUserInputs = () => {
         });
     }
     
+    // View employees by manager
+    const viewEmployeesByManager = async () => {
+        const employeeChoices = await getListOfCurrentEmployees();
+
+        inquirer
+        .prompt([
+            {
+                type: 'list',
+                name: 'manager',
+                message: 'Which manager\'s employees would you like to view?',
+                choices: employeeChoices
+            }
+        ])
+        .then((answers) => {
+            
+            const chosenManager = answers.manager;
+            let chosenManagerID;
+            for (let i = 0; i < employeeChoices.length; i++) {
+                if (chosenManager == employeeChoices[i]) {
+                    chosenManagerID = i + 1;
+                };
+            };
+
+            const sql = `SELECT employees.id as id, employees.first_name as first_name, employees.last_name as last_name, roles.title as title FROM employees JOIN roles ON employees.role_id = roles.id WHERE manager_id = ?;`;
+            const params = chosenManagerID;
+            
+            db.query(sql, params, (err, result) => {
+                if (err) {
+                    console.log(err);
+                }
+                
+                console.table(result);
+                decisionInput();
+            });
+        });
+    }
+
+    // View employees by department
+
+    
     /* ADD TO DATABASE */
     // Add a department
     const addDepartment = () => {
@@ -297,6 +337,8 @@ const respondToUserInputs = () => {
                 choices: ['View all departments',
                             'View all roles',
                             'View all employees',
+                            'View employees by manager',
+                            'View employees by department',
                             'Add a department',
                             'Add a role',
                             'Add an employee',
@@ -312,6 +354,10 @@ const respondToUserInputs = () => {
                 viewAllRoles();
             } else if (answers.decision === 'View all employees') {
                 viewAllEmployees();
+            } else if (answers.decision === 'View employees by manager') {
+                viewEmployeesByManager();
+            } else if (answers.decision === 'View employees by department') {
+                viewEmployeesByDepartment();
             } else if (answers.decision === 'Add a department') {
                 addDepartment();
             } else if (answers.decision === 'Add a role') {
