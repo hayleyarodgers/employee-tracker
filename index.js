@@ -216,7 +216,7 @@ const respondToUserInputs = () => {
             {
                 type: 'list',
                 name: 'role',
-                message: 'Which role do you want to assign the selected employee?',
+                message: 'Which role do you want to assign to the selected employee?',
                 choices: roleChoices
             }
         ])
@@ -232,6 +232,48 @@ const respondToUserInputs = () => {
 
             const sql = `UPDATE employees SET role_id = ? WHERE CONCAT(first_name, ' ', last_name) = ?`;
             const params = [chosenRoleID, answers.employee];
+            
+            db.query(sql, params, (err, result) => {
+                if (err) {
+                    console.log(err);
+                }
+    
+                decisionInput();
+            });
+        });
+    }
+
+    // Change an employee's manager
+    const updateEmployeeManager = async () => {
+        const employeeChoices = await getListOfCurrentEmployees();
+
+        inquirer
+        .prompt([
+            {
+                type: 'list',
+                name: 'employee',
+                message: 'Which employee\'s manager do you want to update?',
+                choices: employeeChoices
+            },
+            {
+                type: 'list',
+                name: 'manager',
+                message: 'Which manager do you want to assign to the selected employee?',
+                choices: employeeChoices
+            }
+        ])
+        .then((answers) => {
+            
+            const chosenManager = answers.manager;
+            let chosenManagerID;
+            for (let i = 0; i < employeeChoices.length; i++) {
+                if (chosenManager == employeeChoices[i]) {
+                    chosenManagerID = i + 1;
+                };
+            };
+
+            const sql = `UPDATE employees SET manager_id = ? WHERE CONCAT(first_name, ' ', last_name) = ?`;
+            const params = [chosenManagerID, answers.employee];
             
             db.query(sql, params, (err, result) => {
                 if (err) {
@@ -259,6 +301,7 @@ const respondToUserInputs = () => {
                             'Add a role',
                             'Add an employee',
                             'Update an employee\'s role',
+                            'Update an employee\'s manager',
                             'Quit'],
             }
         ])
@@ -277,6 +320,8 @@ const respondToUserInputs = () => {
                 addEmployee();
             } else if (answers.decision === 'Update an employee\'s role') {
                 updateEmployeeRole();
+            } else if (answers.decision === 'Update an employee\'s manager') {
+                updateEmployeeManager();
             } else {
                 console.log('Thanks for using the employee tracker, bye! 👋');
                 return
