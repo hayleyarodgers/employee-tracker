@@ -54,7 +54,7 @@ const respondToUserInputs = () => {
 
     // View all employees
     const viewAllEmployees = () => {
-        const sql = `SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department, r.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employees e LEFT JOIN roles r ON e.role_id = r.id LEFT JOIN departments d ON d.id = r.department_id LEFT JOIN employees m ON m.id = e.manager_id`;
+        const sql = `SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department, r.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employees e LEFT JOIN roles r ON e.role_id = r.id LEFT JOIN departments d ON r.department_id = d.id LEFT JOIN employees m ON m.id = e.manager_id`;
 
         db.query(sql, (err, result) => {
             if (err) {
@@ -104,7 +104,41 @@ const respondToUserInputs = () => {
     }
 
     // View employees by department
+    const viewEmployeesByDepartment = async () => {
+        const departmentChoices = await getListOfCurrentDepartments();
 
+        inquirer
+        .prompt([
+            {
+                type: 'list',
+                name: 'department',
+                message: 'Which department\'s employees would you like to view?',
+                choices: departmentChoices
+            }
+        ])
+        .then((answers) => {
+            
+            const chosenDepartment = answers.department;
+            let chosenDepartmentID;
+            for (let i = 0; i < departmentChoices.length; i++) {
+                if (chosenDepartment == departmentChoices[i]) {
+                    chosenDepartmentID = i + 1;
+                };
+            };
+
+            const sql = `SELECT employees.id as id, employees.first_name as first_name, employees.last_name as last_name, departments.name as department FROM employees LEFT JOIN roles ON employees.role_id = roles.id LEFT JOIN departments ON roles.department_id = departments.id WHERE departments.id = ?;`;
+            const params = chosenDepartmentID;
+            
+            db.query(sql, params, (err, result) => {
+                if (err) {
+                    console.log(err);
+                }
+                
+                console.table(result);
+                decisionInput();
+            });
+        });
+    }
     
     /* ADD TO DATABASE */
     // Add a department
