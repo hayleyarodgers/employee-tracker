@@ -273,6 +273,39 @@ const respondToUserInputs = () => {
         });
     }
 
+    /* DELETE FROM DATABASE */
+    // Delete a department
+    const deleteDepartment = async () => {        
+        const departmentChoices = await getListOfCurrentDepartments();
+
+        inquirer
+        .prompt([
+            {
+                type: 'list',
+                name: 'department',
+                message: 'What is the name of the department?',
+                choices: departmentChoices
+            }
+        ])
+        .then((answers) => {
+            const sql = `DELETE FROM departments WHERE departments.name = ?`;
+            const params = answers.department;
+            
+            db.query(sql, params, (err, result) => {
+                if (err) {
+                    console.log(err);
+                }
+    
+                decisionInput();
+            });
+        });
+    }
+
+    // Delete a role
+
+    // Delete an employee
+
+
     /* UPDATE DATABASE */
     // Change an employee's role
     const updateEmployeeRole = async () => {
@@ -376,6 +409,9 @@ const respondToUserInputs = () => {
                             'Add a department',
                             'Add a role',
                             'Add an employee',
+                            'Delete a department',
+                            'Delete a role',
+                            'Delete an employee',
                             'Update an employee\'s role',
                             'Update an employee\'s manager',
                             'Quit'],
@@ -398,6 +434,12 @@ const respondToUserInputs = () => {
                 addRole();
             } else if (answers.decision === 'Add an employee') {
                 addEmployee();
+            } else if (answers.decision === 'Delete a department') {
+                deleteDepartment();
+            } else if (answers.decision === 'Delete a role') {
+                deleteRole();
+            } else if (answers.decision === 'Delete an employee') {
+                deleteEmployee();
             } else if (answers.decision === 'Update an employee\'s role') {
                 updateEmployeeRole();
             } else if (answers.decision === 'Update an employee\'s manager') {
