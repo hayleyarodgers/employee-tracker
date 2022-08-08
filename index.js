@@ -139,6 +139,44 @@ const respondToUserInputs = () => {
             });
         });
     }
+
+    // View utilised budget by department
+    const viewUtilisedBudgetByDepartment = async () => {
+        const departmentChoices = await getListOfCurrentDepartments();
+
+        inquirer
+        .prompt([
+            {
+                type: 'list',
+                name: 'department',
+                message: 'Which department\'s utilised budget would you like to view?',
+                choices: departmentChoices
+            }
+        ])
+        .then((answers) => {
+            
+            const chosenDepartment = answers.department;
+            let chosenDepartmentID;
+            for (let i = 0; i < departmentChoices.length; i++) {
+                if (chosenDepartment == departmentChoices[i]) {
+                    chosenDepartmentID = i + 1;
+                };
+            };
+
+            const sql = `SELECT SUM(roles.salary) AS 'total utilised budget by department' FROM employees LEFT JOIN roles ON employees.role_id = roles.id LEFT JOIN departments ON roles.department_id = departments.id WHERE departments.id = ?;`;
+            const params = chosenDepartmentID;
+            
+            db.query(sql, params, (err, result) => {
+                if (err) {
+                    console.log(err);
+                };
+    
+                console.table(result);
+                decisionInput();
+            });
+        });
+    }
+
     
     /* ADD TO DATABASE */
     // Add a department
@@ -464,6 +502,7 @@ const respondToUserInputs = () => {
                             'View all employees',
                             'View employees by manager',
                             'View employees by department',
+                            'View utilised budget by department',
                             'Add a department',
                             'Add a role',
                             'Add an employee',
@@ -486,6 +525,8 @@ const respondToUserInputs = () => {
                 viewEmployeesByManager();
             } else if (answers.decision === 'View employees by department') {
                 viewEmployeesByDepartment();
+            } else if (answers.decision === 'View utilised budget by department') {
+                viewUtilisedBudgetByDepartment();
             } else if (answers.decision === 'Add a department') {
                 addDepartment();
             } else if (answers.decision === 'Add a role') {
@@ -503,8 +544,8 @@ const respondToUserInputs = () => {
             } else if (answers.decision === 'Update an employee\'s manager') {
                 updateEmployeeManager();
             } else {
-                console.log('Thanks for using the employee tracker, bye! 👋');
-                return
+                console.log('Thanks for using the employee tracker, bye!');
+                return init()
             }
         });
     }
