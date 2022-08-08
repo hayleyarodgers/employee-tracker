@@ -47,7 +47,7 @@ const respondToUserInputs = () => {
 
     // View all departments
     const viewAllDepartments = () => {
-        sql = `SELECT id, name FROM departments`;
+        const sql = `SELECT id, name FROM departments`;
         
         db.query(sql, (err, result) => {
             if (err) {
