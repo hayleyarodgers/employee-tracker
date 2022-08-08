@@ -27,7 +27,7 @@ During this project, I consolidated my understanding of databases and MySQL. In 
 
 To access the repository where the code is saved, click [here](https://github.com/hayleyarodgers/employee-tracker).
 
-To access a video walkthrough tutorial of the application, click [here](./assets/walkthrough/employee-tracker-demo-HRodgers.mp4) to access it directly or [here](https://drive.google.com/file/d/1gCjUfJLQUykif9iB7OeWKn76QbDEvanh/view?usp=sharing) to access it via GoogleDrive.
+To access a video walkthrough tutorial of the application, click [here](./assets/walkthrough/employee-tracker-demo-HRodgers.mp4) to access it directly or [here](https://drive.google.com/file/d/1-nKOjfsTqBETIYKIJrcHNkmeO4j3uwJ8/view?usp=sharing) to access it via GoogleDrive.
 
 ## Installation
 
