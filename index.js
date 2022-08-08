@@ -1,3 +1,18 @@
+/* JS DIRECTORY
+    1. =APP-SETUP
+    2. =PROMPTS
+        2.1 =VIEW-DATABASE
+        2.2 =ADD-TO-DATABASE
+        2.3 =DELETE-FROM-DATABASE
+        2.4 =UPDATE-DATABASE
+        2.5 =USER-DECISION
+    3. =HELPER-FUNCTIONS
+    4. =INITIALISATION
+*/
+
+
+/* ===APP-SETUP=== */
+
 // Import dependencies
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
@@ -15,6 +30,9 @@ const db = mysql.createConnection(
     console.log(`Connected to the business_db database.`)
 );
 
+
+/* ===PROMPTS=== */
+
 // Questions user is asked in CLI
 const welcome = () => {
     console.log(`
@@ -23,7 +41,10 @@ Welcome to the employee tracker! 👋`);
 }
 
 const respondToUserInputs = () => {
-    /* VIEW DATABASE */
+    
+    
+    /* ===VIEW-DATABASE=== */
+
     // View all departments
     const viewAllDepartments = () => {
         sql = `SELECT id, name FROM departments`;
@@ -80,7 +101,6 @@ const respondToUserInputs = () => {
             }
         ])
         .then((answers) => {
-            
             const chosenManager = answers.manager;
             let chosenManagerID;
             for (let i = 0; i < employeeChoices.length; i++) {
@@ -117,17 +137,8 @@ const respondToUserInputs = () => {
             }
         ])
         .then((answers) => {
-            
-            const chosenDepartment = answers.department;
-            let chosenDepartmentID;
-            for (let i = 0; i < departmentChoices.length; i++) {
-                if (chosenDepartment == departmentChoices[i]) {
-                    chosenDepartmentID = i + 1;
-                };
-            };
-
-            const sql = `SELECT employees.id as id, employees.first_name as first_name, employees.last_name as last_name, departments.name as department FROM employees LEFT JOIN roles ON employees.role_id = roles.id LEFT JOIN departments ON roles.department_id = departments.id WHERE departments.id = ?;`;
-            const params = chosenDepartmentID;
+            const sql = `SELECT employees.id as id, employees.first_name as first_name, employees.last_name as last_name, departments.name as department FROM employees LEFT JOIN roles ON employees.role_id = roles.id LEFT JOIN departments ON roles.department_id = departments.id WHERE departments.name = ?;`;
+            const params = answers.department;
             
             db.query(sql, params, (err, result) => {
                 if (err) {
@@ -154,17 +165,8 @@ const respondToUserInputs = () => {
             }
         ])
         .then((answers) => {
-            
-            const chosenDepartment = answers.department;
-            let chosenDepartmentID;
-            for (let i = 0; i < departmentChoices.length; i++) {
-                if (chosenDepartment == departmentChoices[i]) {
-                    chosenDepartmentID = i + 1;
-                };
-            };
-
-            const sql = `SELECT SUM(roles.salary) AS 'total utilised budget by department' FROM employees LEFT JOIN roles ON employees.role_id = roles.id LEFT JOIN departments ON roles.department_id = departments.id WHERE departments.id = ?;`;
-            const params = chosenDepartmentID;
+            const sql = `SELECT departments.name AS department, SUM(roles.salary) AS 'total utilised budget' FROM employees LEFT JOIN roles ON employees.role_id = roles.id LEFT JOIN departments ON roles.department_id = departments.id WHERE departments.name = ?;`;
+            const params = answers.department;
             
             db.query(sql, params, (err, result) => {
                 if (err) {
@@ -178,7 +180,8 @@ const respondToUserInputs = () => {
     }
 
     
-    /* ADD TO DATABASE */
+    /* ===ADD-TO-DATABASE=== */
+
     // Add a department
     const addDepartment = () => {
         inquirer
@@ -281,7 +284,6 @@ const respondToUserInputs = () => {
             }
         ])
         .then((answers) => {
-            
             const chosenRole = answers.role;
             let chosenRoleID;
             for (let i = 0; i < roleChoices.length; i++) {
@@ -311,7 +313,9 @@ const respondToUserInputs = () => {
         });
     }
 
-    /* DELETE FROM DATABASE */
+
+    /* ===DELETE-FROM-DATABASE=== */
+
     // Delete a department
     const deleteDepartment = async () => {        
         const departmentChoices = await getListOfCurrentDepartments();
@@ -380,7 +384,6 @@ const respondToUserInputs = () => {
             }
         ])
         .then((answers) => {
-            
             const chosenEmployee = answers.employee;
             let chosenEmployeeID;
             for (let i = 0; i < employeeChoices.length; i++) {
@@ -402,7 +405,9 @@ const respondToUserInputs = () => {
         });
     }
 
-    /* UPDATE DATABASE */
+
+    /* ===UPDATE-DATABASE=== */
+
     // Change an employee's role
     const updateEmployeeRole = async () => {
         const employeeChoices = await getListOfCurrentEmployees();
@@ -424,7 +429,6 @@ const respondToUserInputs = () => {
             }
         ])
         .then((answers) => {
-            
             const chosenRole = answers.role;
             let chosenRoleID;
             for (let i = 0; i < roleChoices.length; i++) {
@@ -488,7 +492,9 @@ const respondToUserInputs = () => {
         });
     }
 
-    /* DECISION */
+
+    /* ===USER-DECISION=== */
+
     // User says what they want to do
     const decisionInput = () => {
         inquirer
@@ -553,6 +559,9 @@ const respondToUserInputs = () => {
     decisionInput();
 }
 
+
+/* ===HELPER-FUNCTIONS=== */
+
 // Getting list of current departments
 const getListOfCurrentDepartments = async () => {  
     const data = await db.promise().query(`SELECT name FROM departments;`);
@@ -581,7 +590,6 @@ const getListOfCurrentRoles = async () => {
     return roleChoices;
 }
 
-
 // Getting list of current employees
 const getListOfCurrentEmployees = async () => {
     const data = await db.promise().query(`SELECT CONCAT(first_name, ' ', last_name) AS full_name FROM employees;`);
@@ -595,6 +603,9 @@ const getListOfCurrentEmployees = async () => {
 
     return employeeChoices;
 }
+
+
+/* ===INITIALISATION=== */
 
 // Initialise app
 const init = () => {
